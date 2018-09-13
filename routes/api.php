@@ -17,15 +17,18 @@ use Illuminate\Http\Request;
 Route::post('/login', 'API\AuthController@login');
 
 Route::middleware('auth:api')->group(function (){
+    Route::get("/post/sentiment/{id}", "API\PostController@sentiment");
     Route::resource("/post","API\PostController");
     Route::get("/like/{id}", "API\LikeController@like");
+    Route::get("/comments/{id}", "API\CommentController@comments");
+    Route::post("/comment", "API\CommentController@postComment");
+
+    // Profile
+    Route::get('/user/{id?}', "API\UserController@user");
+    Route::get('/user/{id}/posts', "API\UserController@posts");
 });
 
 //Route::post('register', 'Api\UserController@register');
 //Route::group(['middleware' => 'auth:api'], function () {
 //    Route::post('details', 'API\UserController@details');
 //});
-
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Sentiment\Analyzer;
+use App\Http\Sentiment\Sentiment;
 use App\Model\Post;
 use App\User;
 use Illuminate\Http\Request;
@@ -17,7 +19,8 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::with('user')->latest()->simplePaginate(5);
+        sleep(1);
+        $posts = Post::with('user')->latest()->simplePaginate(20);
         return response()->json($posts);
     }
 
@@ -58,6 +61,21 @@ class PostController extends Controller
         }
     }
 
+    public function sentiment($id) {
+        //sleep(2);
+        $post = Post::find($id);
+        //dd($post);
+        if($post) {
+            $sentiment = new Analyzer(new Sentiment());
+
+            $sentiment->train(asset('sentimentData/pos.txt'), 'pos', 5000);
+            $sentiment->train(asset('sentimentData/neg.txt'), 'neg', 5000);
+
+            $score = $sentiment->score($post->content);
+            return $score;
+        }
+    }
+
     /**
      * Update the specified resource in storage.
      *
@@ -93,6 +111,11 @@ class PostController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $post = Post::find($id);
+        if($post) {
+            if(Auth::id() == $post->user_id) {
+                $post->delete();
+            }
+        }
     }
 }
