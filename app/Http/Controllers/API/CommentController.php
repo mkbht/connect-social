@@ -11,7 +11,7 @@ class CommentController extends Controller
 {
 
     public function comments($id) {
-        $comments = Comment::with('user')->where('post_id', $id)->get();
+        $comments = Comment::with('user')->where('post_id', $id)->latest()->get();
         if($comments) {
             return $comments;
         }
@@ -20,14 +20,18 @@ class CommentController extends Controller
 
     public function postComment(Request $request) {
         if(!empty(trim($request->comment))) {
-            $comment = new Comment();
-            $comment->post_id = $request->id;
-            $comment->user_id = Auth::id();
-            $comment->content = $request->comment;
-            $comment->save();
-            return $comment;
+            $data = [
+                'content' => $request->get('comment'),
+                'user_id' => Auth::id(),
+                'post_id' => $request->get('post_id')
+            ];
+
+            $comment = Comment::create($data);
+            $id = $comment->id;
+            $newComment = Comment::with('user')->find($id);
+            return response()->json($newComment, 201);
         }
-        return null;
+        return response()->json(null, 500);
     }
 
 }
