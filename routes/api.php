@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 
 
 Route::post('/login', 'API\AuthController@login');
+Route::post('/register', 'API\AuthController@signup');
 
 Route::middleware('auth:api')->group(function (){
     Route::get("/post/sentiment/{id}", "API\PostController@sentiment");
@@ -25,7 +26,14 @@ Route::middleware('auth:api')->group(function (){
 
     // Profile
     Route::get('/user/{id?}', "API\UserController@user");
+    Route::get('/random', "API\UserController@random");
+    Route::get('/profile/{username?}', "API\UserController@profile");
     Route::get('/user/{id}/posts', "API\UserController@posts");
+    Route::post('/follow', "API\UserController@follow");
+    Route::post('/unfollow', "API\UserController@unfollow");
+
+    // notification
+    Route::get('/notifications', "API\NotificationController@notifications");
 });
 
 //Route::post('register', 'Api\UserController@register');
